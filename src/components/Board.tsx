@@ -1,17 +1,16 @@
 
 import Tile from './Tile';
+import { TileData } from './Game';
 
 interface BoardProps {
-  board: number[][];
+  board: TileData[];
 }
 
 const Board: React.FC<BoardProps> = ({ board }) => {
   return (
-    <div className="grid grid-cols-4 gap-4 p-4 rounded-lg bg-gray-300">
-      {board.map((row, rowIndex) => (
-        row.map((cell, colIndex) => (
-          <Tile key={`${rowIndex}-${colIndex}`} value={cell} />
-        ))
+    <div className="relative w-[704px] h-[704px] p-4 rounded-lg bg-gray-300">
+      {board.filter(tile => tile.id !== null).map(tile => (
+        <Tile key={tile.id} value={tile.value} x={tile.x} y={tile.y} />
       ))}
     </div>
   );

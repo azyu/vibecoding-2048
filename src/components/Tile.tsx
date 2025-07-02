@@ -1,24 +1,32 @@
-
 import { useState, useEffect } from 'react';
 
 interface TileProps {
   value: number;
+  x: number;
+  y: number;
 }
 
-const Tile: React.FC<TileProps> = ({ value }) => {
+const Tile: React.FC<TileProps> = ({ value, x, y }) => {
   const [isNew, setIsNew] = useState(false);
+  const [isMerged, setIsMerged] = useState(false);
+  const [prevValue, setPrevValue] = useState(value);
 
   useEffect(() => {
-    if (value !== 0) {
+    if (value !== 0 && prevValue === 0) { // New tile appearing
       setIsNew(true);
-      const timer = setTimeout(() => setIsNew(false), 200); // 애니메이션 지속 시간
+      const timer = setTimeout(() => setIsNew(false), 200);
+      return () => clearTimeout(timer);
+    } else if (value !== 0 && prevValue !== 0 && value !== prevValue) { // Value changed, likely a merge
+      setIsMerged(true);
+      const timer = setTimeout(() => setIsMerged(false), 200);
       return () => clearTimeout(timer);
     }
-  }, [value]);
+    setPrevValue(value);
+  }, [value, prevValue]);
 
   const tileClasses = `
-    w-40 h-40 flex items-center justify-center rounded-md text-5xl font-bold
-    transition-all duration-100 ease-in-out transform
+    absolute w-40 h-40 flex items-center justify-center rounded-md text-5xl font-bold
+    transition-all duration-300 ease-in-out
     ${value === 0 ? 'bg-gray-200 text-gray-700' : 'text-white'}
     ${value === 2 ? 'bg-yellow-300' : ''}
     ${value === 4 ? 'bg-yellow-400' : ''}
@@ -33,10 +41,15 @@ const Tile: React.FC<TileProps> = ({ value }) => {
     ${value === 2048 ? 'bg-green-500' : ''}
     ${value > 2048 ? 'bg-black' : ''}
     ${isNew ? 'scale-110' : 'scale-100'}
+    ${isMerged ? 'scale-125' : 'scale-100'}
   `;
 
+  const tileStyle = {
+    transform: `translate(${x * (160 + 16)}px, ${y * (160 + 16)}px)`,
+  };
+
   return (
-    <div className={tileClasses}>
+    <div className={tileClasses} style={tileStyle}>
       {value !== 0 ? value : ''}
     </div>
   );
